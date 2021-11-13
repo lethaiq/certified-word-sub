@@ -21,9 +21,6 @@ import datasets
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-raw_data = text_classification.IMDBDataset.get_raw_data(
-        OPTS.imdb_dir, test=(OPTS.split == 'test'))
-
 # Maps string keys to modules that hold the relevant functions for training against
 # their tasks
 TASK_CLASSES = {
