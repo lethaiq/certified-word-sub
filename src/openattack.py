@@ -367,8 +367,8 @@ def openattack():
     model = task_class.load_model(word_mat, device, OPTS)
     model.eval()
 
-    x = "this movie is awesome, great"
-    pred = model.query(x, vocab, device, return_bounds=False, attack_surface=attack_surface)
+    # x = "this movie is awesome, great"
+    # pred = model.query(x, vocab, device, return_bounds=False, attack_surface=attack_surface)
 
     # configure access interface of the customized victim model by extending OpenAttack.Classifier.
     class MyClassifier(oa.Classifier):
