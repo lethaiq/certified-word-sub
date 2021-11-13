@@ -433,8 +433,8 @@ def openattack():
       attack_eval = oa.AttackEval(attacker, victim)
       advs, result = attack_eval.eval(dataset, visualize=False)
 
-      pickle.dump([advs, result], open(outfile, 'wb'))
-      print("saved", outfile)
+      # pickle.dump([advs, result], open(outfile, 'wb'))
+      # print("saved", outfile)
 
 if __name__ == '__main__':
   OPTS = parse_args()
