@@ -528,7 +528,7 @@ class GeneticAdversary(Adversary):
     return is_correct, adv_exs
 
 
-def load_datasets(device, opts):
+def load_datasets(device, opts, word_mat_only=False):
   """
   Loads text classification datasets given opts on the device and returns the dataset.
   If a data cache is specified in opts and the cached data there is of the same class
@@ -541,52 +541,57 @@ def load_datasets(device, opts):
     - word_mat: torch.Tensor
     - attack_surface: AttackSurface - defines the adversarial attack surface
   """
-  data_class = ToyClassificationDataset if opts.use_toy_data else IMDBDataset
-  try:
-    with open(os.path.join(opts.data_cache_dir, 'train_data.pkl'), 'rb') as infile:
-      train_data = pickle.load(infile)
-      if not isinstance(train_data, data_class):
-          raise Exception("Cached dataset of wrong class: {}".format(type(train_data)))
-    with open(os.path.join(opts.data_cache_dir, 'dev_data.pkl'), 'rb') as infile:
-      dev_data = pickle.load(infile)
-      if not isinstance(dev_data, data_class):
-          raise Exception("Cached dataset of wrong class: {}".format(type(train_data)))
-    with open(os.path.join(opts.data_cache_dir, 'word_mat.pkl'), 'rb') as infile:
-      word_mat = pickle.load(infile)
-    with open(os.path.join(opts.data_cache_dir, 'attack_surface.pkl'), 'rb') as infile:
-      attack_surface = pickle.load(infile)
-    print("Loaded data from {}.".format(opts.data_cache_dir))
-  except Exception:
-    if opts.use_toy_data:
-      attack_surface = ToyClassificationAttackSurface(ToyClassificationDataset.VOCAB_LIST)
-    elif opts.use_lm:
-      attack_surface = attacks.LMConstrainedAttackSurface.from_files(
-          opts.neighbor_file, opts.imdb_lm_file)
-    else:
-      attack_surface = attacks.WordSubstitutionAttackSurface.from_file(opts.neighbor_file)
-    print('Reading dataset.')
-    raw_data = data_class.get_raw_data(opts.imdb_dir, test=opts.test)
-    word_set = raw_data.get_word_set(attack_surface)
-    vocab, word_mat = vocabulary.Vocabulary.read_word_vecs(word_set, opts.glove_dir, opts.glove, device)
-    train_data = data_class.from_raw_data(raw_data.train_data, vocab, attack_surface,
+  if not word_mat_only:
+    data_class = ToyClassificationDataset if opts.use_toy_data else IMDBDataset
+    try:
+      with open(os.path.join(opts.data_cache_dir, 'train_data.pkl'), 'rb') as infile:
+        train_data = pickle.load(infile)
+        if not isinstance(train_data, data_class):
+            raise Exception("Cached dataset of wrong class: {}".format(type(train_data)))
+      with open(os.path.join(opts.data_cache_dir, 'dev_data.pkl'), 'rb') as infile:
+        dev_data = pickle.load(infile)
+        if not isinstance(dev_data, data_class):
+            raise Exception("Cached dataset of wrong class: {}".format(type(train_data)))
+      with open(os.path.join(opts.data_cache_dir, 'word_mat.pkl'), 'rb') as infile:
+        word_mat = pickle.load(infile)
+      with open(os.path.join(opts.data_cache_dir, 'attack_surface.pkl'), 'rb') as infile:
+        attack_surface = pickle.load(infile)
+      print("Loaded data from {}.".format(opts.data_cache_dir))
+    except Exception:
+      if opts.use_toy_data:
+        attack_surface = ToyClassificationAttackSurface(ToyClassificationDataset.VOCAB_LIST)
+      elif opts.use_lm:
+        attack_surface = attacks.LMConstrainedAttackSurface.from_files(
+            opts.neighbor_file, opts.imdb_lm_file)
+      else:
+        attack_surface = attacks.WordSubstitutionAttackSurface.from_file(opts.neighbor_file)
+      print('Reading dataset.')
+      raw_data = data_class.get_raw_data(opts.imdb_dir, test=opts.test)
+      word_set = raw_data.get_word_set(attack_surface)
+      vocab, word_mat = vocabulary.Vocabulary.read_word_vecs(word_set, opts.glove_dir, opts.glove, device)
+      train_data = data_class.from_raw_data(raw_data.train_data, vocab, attack_surface,
+                                            downsample_to=opts.downsample_to,
+                                            downsample_shard=opts.downsample_shard,
+                                            truncate_to=opts.truncate_to)
+      dev_data = data_class.from_raw_data(raw_data.dev_data, vocab, attack_surface,
                                           downsample_to=opts.downsample_to,
                                           downsample_shard=opts.downsample_shard,
                                           truncate_to=opts.truncate_to)
-    dev_data = data_class.from_raw_data(raw_data.dev_data, vocab, attack_surface,
-                                        downsample_to=opts.downsample_to,
-                                        downsample_shard=opts.downsample_shard,
-                                        truncate_to=opts.truncate_to)
-    if opts.data_cache_dir:
-      with open(os.path.join(opts.data_cache_dir, 'train_data.pkl'), 'wb') as outfile:
-        pickle.dump(train_data, outfile)
-      with open(os.path.join(opts.data_cache_dir, 'dev_data.pkl'), 'wb') as outfile:
-        pickle.dump(dev_data, outfile)
-      with open(os.path.join(opts.data_cache_dir, 'word_mat.pkl'), 'wb') as outfile:
-        pickle.dump(word_mat, outfile)
-      with open(os.path.join(opts.data_cache_dir, 'attack_surface.pkl'), 'wb') as outfile:
-        pickle.dump(attack_surface, outfile)
-  return train_data, dev_data, word_mat, attack_surface
-
+      if opts.data_cache_dir:
+        with open(os.path.join(opts.data_cache_dir, 'train_data.pkl'), 'wb') as outfile:
+          pickle.dump(train_data, outfile)
+        with open(os.path.join(opts.data_cache_dir, 'dev_data.pkl'), 'wb') as outfile:
+          pickle.dump(dev_data, outfile)
+        with open(os.path.join(opts.data_cache_dir, 'word_mat.pkl'), 'wb') as outfile:
+          pickle.dump(word_mat, outfile)
+        with open(os.path.join(opts.data_cache_dir, 'attack_surface.pkl'), 'wb') as outfile:
+          pickle.dump(attack_surface, outfile)
+    return train_data, dev_data, word_mat, attack_surface
+  else:
+      attack_surface = attacks.WordSubstitutionAttackSurface.from_file(opts.neighbor_file)
+      word_set = raw_data.get_word_set(attack_surface)
+      vocab, word_mat = vocabulary.Vocabulary.read_word_vecs(word_set, opts.glove_dir, opts.glove, device)
+      return word_mat
 
 def num_correct(model_output, gold_labels):
   """

@@ -325,6 +325,7 @@ def parse_args():
   return parser.parse_args()
 
 def openattack():
+  import pickle
   random.seed(OPTS.rng_seed)
   np.random.seed(OPTS.rng_seed)
   torch.manual_seed(OPTS.torch_seed)
@@ -340,10 +341,10 @@ def openattack():
   if OPTS.data_cache_dir:
     if not os.path.exists(OPTS.data_cache_dir):
         os.makedirs(OPTS.data_cache_dir)
-  train_data, dev_data, word_mat, attack_surface = task_class.load_datasets(device, OPTS)
-  print('Initializing model.')
+  word_mat = task_class.load_datasets(device, OPTS, word_mat_only=True)
   pickle.dump(word_mat, open('./data/imdb_word_mat.pkl','wb'))
-  # model = task_class.load_model(word_mat, device, OPTS)
+  model = task_class.load_model(word_mat, device, OPTS)
+  print(model)
 
 if __name__ == '__main__':
   OPTS = parse_args()
