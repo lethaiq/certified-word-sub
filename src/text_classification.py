@@ -50,7 +50,7 @@ class AdversarialModel(nn.Module):
         return logits.val[0].item(), (logits.lb[0].item(), logits.ub[0].item())
       elif return_raw:
         return logits
-      else
+      else:
         return logits[0].item()
 
 
