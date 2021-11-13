@@ -354,8 +354,41 @@ def openattack():
 
   x = "this movie is awesome, great"
   pred = model.query(x, vocab, device, return_bounds=False, attack_surface=attack_surface)
-  
-  print(pred)
+
+  import OpenAttack as oa
+  import numpy as np
+  import datasets
+  import nltk
+  from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+  # configure access interface of the customized victim model by extending OpenAttack.Classifier.
+  class MyClassifier(oa.Classifier):
+      def __init__(self):
+          self.model = model
+      
+      def get_pred(self, input_):
+          return self.get_prob(input_).argmax(axis=1)
+
+      def get_prob(self, input_):
+          ret = []
+          for sent in input_:
+              prob = self.model.query(sent, vocab, device, return_bounds=False, attack_surface=attack_surface)
+              prob = torch.sigmoid(torch.tensor(prob))
+              ret.append(np.array([1 - prob, prob]))
+          return np.array(ret)
+
+  def dataset_mapping(x):
+      return {
+          "x": x["sentence"],
+          "y": 1 if x["label"] > 0.5 else 0,
+      }
+      
+  # load some examples of SST-2 for evaluation
+  dataset = datasets.load_dataset("imdb", split="test[:200]").map(function=dataset_mapping)
+  victim = MyClassifier()
+  attacker = oa.attackers.TextBuggerAttacker()
+  attack_eval = oa.AttackEval(attacker, victim)
+  attack_eval.eval(dataset, visualize=True)
 
 if __name__ == '__main__':
   OPTS = parse_args()
