@@ -384,7 +384,9 @@ def openattack():
       }
       
   # load some examples of SST-2 for evaluation
-  dataset = datasets.load_dataset("imdb", split="test[:200]").map(function=dataset_mapping)
+  dataset = datasets.load_dataset("imdb", split="test[:200]")
+  print('preprocessing')
+  dataset = dataset.map(function=dataset_mapping)
   victim = MyClassifier()
   attacker = oa.attackers.TextBuggerAttacker()
   attack_eval = oa.AttackEval(attacker, victim)
