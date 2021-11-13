@@ -706,7 +706,7 @@ class TextClassificationDataset(data_util.ProcessedDataset):
     for x, y in raw_data:
       all_words = [w.lower() for w in x.split()]
       if attack_surface:
-        all_swaps = attack_surface.get_swaps(all_words)
+        all_swaps = attack_surface.get_swaps(all_words, s=x)
         words = [w for w in all_words if w in vocab]
         swaps = [s for w, s in zip(all_words, all_swaps) if w in vocab]
         choices = [[w] + cur_swaps for w, cur_swaps in zip(words, swaps)]
