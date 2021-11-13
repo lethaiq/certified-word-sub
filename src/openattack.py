@@ -398,10 +398,12 @@ def openattack():
   model_name = 'CertifiedTraining'
 
   attackers = [oa.attackers.TextBuggerAttacker(), \
-  oa.attackers.PWWSAttacker(), \
-  oa.attackers.GeneticAttacker(), \
-  oa.attackers.TextFoolerAttacker(), \
-  oa.attackers.SCPNAttacker()]
+              oa.attackers.PWWSAttacker(), \
+              oa.attackers.GeneticAttacker(), \
+              oa.attackers.TextFoolerAttacker(), \
+              oa.attackers.SCPNAttacker(),
+              oa.attackers.BERTAttacker(),
+              oa.attackers.BAEAttacker()]
 
   for attacker in attackers:
     print(attacker)
