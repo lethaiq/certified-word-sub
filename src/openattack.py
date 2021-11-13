@@ -411,7 +411,6 @@ def openattack():
       dataset = dataset.shuffle(seed=200)
       dataset = dataset.map(function=dataset_mapping)
       dataset = dataset.filter(lambda x: x['y'] == 1)
-      dataset = dataset.select(list(range(10)))
 
     print('preprocessing')
     victim = MyClassifier()
@@ -436,6 +435,7 @@ def openattack():
       attack_eval = oa.AttackEval(attacker, victim)
       advs, result = attack_eval.eval(dataset, visualize=False)
 
+      print(result)
       pickle.dump([advs, result], open(outfile, 'wb'))
       print("saved", outfile)
 
