@@ -385,7 +385,8 @@ def openattack():
       }
       
   # load some examples of SST-2 for evaluation
-  dataset = datasets.load_dataset("imdb", split="test[:200]")
+  dataset = datasets.load_dataset("imdb", split="test")
+  dataset = dataset.shuffle(seed=12)[:200]
   print('preprocessing')
   dataset = dataset.map(function=dataset_mapping)
   victim = MyClassifier()
