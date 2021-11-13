@@ -345,11 +345,11 @@ def openattack():
         os.makedirs(OPTS.data_cache_dir)
 
   if not os.path.exists('./data/imdb_word_mat.pkl'):
-    word_mat = task_class.load_datasets(device, OPTS, word_mat_only=True)
-    pickle.dump(word_mat, open('./data/imdb_word_mat.pkl','wb'))
+    vocab, word_mat = task_class.load_datasets(device, OPTS, word_mat_only=True)
+    pickle.dump([vocab, word_mat], open('./data/imdb_word_mat.pkl','wb'))
   else:
-    word_mat = pickle.load(open('./data/imdb_word_mat.pkl','rb'))
-    
+    vocab, word_mat = pickle.load(open('./data/imdb_word_mat.pkl','rb'))
+
   model = task_class.load_model(word_mat, device, OPTS)
 
   print(model)

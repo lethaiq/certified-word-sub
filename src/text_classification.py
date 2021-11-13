@@ -593,7 +593,7 @@ def load_datasets(device, opts, word_mat_only=False):
       attack_surface = attacks.WordSubstitutionAttackSurface.from_file(opts.neighbor_file)
       word_set = raw_data.get_word_set(attack_surface)
       vocab, word_mat = vocabulary.Vocabulary.read_word_vecs(word_set, opts.glove_dir, opts.glove, device)
-      return word_mat
+      return vocab, word_mat
 
 def num_correct(model_output, gold_labels):
   """
