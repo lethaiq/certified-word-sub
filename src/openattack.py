@@ -429,6 +429,8 @@ def openattack():
       outfile = './results/{}_{}.pkl'.format(model_name, str(attacker).split('object')[0].strip())
 
       if os.path.exists(outfile):
+        advs, result = pickle.load(open(outfile, 'rb'))
+        print(result)
         return 
 
       attack_eval = oa.AttackEval(attacker, victim)
