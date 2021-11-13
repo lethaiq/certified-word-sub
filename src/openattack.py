@@ -356,7 +356,7 @@ def openattack():
     attack_surface1, vocab1, word_mat1, attack_surface2, vocab2, word_mat2 = pickle.load(open('./data/imdb_evaluation_elements.pkl','rb'))
 
   for params, model_name in zip(([attack_surface1, vocab1, word_mat1], [attack_surface2, vocab2, word_mat2]), ['CertifiedTraining1', 'CertifiedTraining2']):
-    if model_name != "CertifiedTraining2":
+    if model_name != "CertifiedTraining1":
       continue
 
     attack_surface = params[0]
