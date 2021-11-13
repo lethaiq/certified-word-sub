@@ -345,71 +345,7 @@ def openattack():
   pickle.dump(word_mat, open('./data/imdb_word_mat.pkl','wb'))
   # model = task_class.load_model(word_mat, device, OPTS)
 
-
-def main():
-  random.seed(OPTS.rng_seed)
-  np.random.seed(OPTS.rng_seed)
-  torch.manual_seed(OPTS.torch_seed)
-  torch.backends.cudnn.deterministic = True
-  device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-  task_class = TASK_CLASSES[OPTS.task]
-  print('Loading dataset.')
-  if not os.path.exists(OPTS.out_dir):
-    os.makedirs(OPTS.out_dir)
-  with open(os.path.join(OPTS.out_dir, 'log.txt'), 'w') as f:
-    print(sys.argv, file=f)
-    print(OPTS, file=f)
-  if OPTS.data_cache_dir:
-    if not os.path.exists(OPTS.data_cache_dir):
-        os.makedirs(OPTS.data_cache_dir)
-  train_data, dev_data, word_mat, attack_surface = task_class.load_datasets(device, OPTS)
-  print('Initializing model.')
-  model = task_class.load_model(word_mat, device, OPTS)
-  if OPTS.num_epochs > 0:
-    augmenter = None
-    if OPTS.augment_by:
-      augmenter = task_class.DataAugmenter(OPTS.augment_by)
-
-    train(task_class, model, train_data, OPTS.num_epochs, OPTS.learning_rate, device,
-          dev_data=dev_data, cert_frac=OPTS.cert_frac, initial_cert_frac=OPTS.initial_cert_frac,
-          cert_eps=OPTS.cert_eps, initial_cert_eps=OPTS.initial_cert_eps, batch_size=OPTS.batch_size,
-          epochs_per_save=OPTS.epochs_per_save, augmenter=augmenter, clip_grad_norm=OPTS.clip_grad_norm,
-          weight_decay=OPTS.weight_decay, full_train_epochs=OPTS.full_train_epochs, non_cert_train_epochs=OPTS.non_cert_train_epochs, save_best_only=OPTS.save_best_only)
-    print('Training finished.')
-  print('Testing model.')
-  if not OPTS.adv_only:
-    train_results = test(task_class, model, 'Train', train_data, device, 
-                         batch_size=OPTS.batch_size)
-    adversary = None
-    if OPTS.adversary == 'exhaustive':
-      adversary = task_class.ExhaustiveAdversary(attack_surface)
-    elif OPTS.adversary == 'greedy':
-      adversary = task_class.GreedyAdversary(attack_surface, num_epochs=OPTS.adv_num_epochs,
-                                             num_tries=OPTS.adv_num_tries)
-    elif OPTS.adversary == 'genetic':
-      adversary = task_class.GeneticAdversary(attack_surface, num_iters=OPTS.adv_num_epochs,
-                                              pop_size=OPTS.adv_pop_size)
-    dev_results = test(task_class, model, 'Dev', dev_data, device, 
-                       adversary=adversary, batch_size=OPTS.batch_size)
-    results = {
-        'train': train_results,
-        'dev': dev_results
-    }
-    with open(os.path.join(OPTS.out_dir, 'test_results.json'), 'w') as f:
-      json.dump(results, f)
-  else:
-    adversary = None
-    if OPTS.adversary == 'exhaustive':
-      adversary = task_class.ExhaustiveAdversary(attack_surface)
-    elif OPTS.adversary == 'greedy':
-      adversary = task_class.GreedyAdversary(attack_surface, num_epochs=OPTS.adv_num_epochs,
-                                             num_tries=OPTS.adv_num_tries)
-    elif OPTS.adversary == 'genetic':
-      adversary = task_class.GeneticAdversary(attack_surface, num_iters=OPTS.adv_num_epochs,
-                                              pop_size=OPTS.adv_pop_size)
-    test(task_class, model, 'Dev', dev_data, device, adversary=adversary, batch_size=OPTS.batch_size)
-
 if __name__ == '__main__':
   OPTS = parse_args()
-  main()
-  # openattack()
+  # main()
+  openattack()
