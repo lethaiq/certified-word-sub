@@ -397,26 +397,18 @@ def openattack():
 
   model_name = 'CertifiedTraining'
 
-  attackers = ['TextBugger', 'PWWS', 'Genetic', 'TextFooler', 'SCPN']
+  attackers = [oa.attackers.TextBuggerAttacker(), \
+  oa.attackers.PWWSAttacker(), \
+  oa.attackers.GeneticAttacker(), \
+  oa.attackers.TextFoolerAttacker(), \
+  oa.attackers.SCPNAttacker()]
+
   for attacker in attackers:
     print(attacker)
-    outfile = './results/{}_{}.pkl'.format(model_name, attacker)
+    outfile = './results/{}_{}.pkl'.format(model_name, str(attacker))
 
     if os.path.exists(outfile):
       return 
-
-    if attacker == 'TextBugger':
-      attacker = oa.attackers.TextBuggerAttacker()
-    elif attacker == 'PWWS':
-      attacker = oa.attackers.PWWSAttacker()
-    elif attacker == 'Genetic':
-      attacker = oa.attackers.GeneticAttacker()
-    elif attacker == 'TextFooler':
-      attacker = oa.attackers.TextFoolerAttacker()
-    elif attacker == 'SCPN':
-      attacker = oa.attackers.SCPNAttacker()
-
-    print(attacker)
 
     attack_eval = oa.AttackEval(attacker, victim)
     advs, result = attack_eval.eval(dataset, visualize=True)
