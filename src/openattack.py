@@ -434,7 +434,7 @@ def openattack():
         return 
 
       attack_eval = oa.AttackEval(attacker, victim)
-      advs, result = attack_eval.eval(dataset, visualize=False)
+      advs, result = attack_eval.eval(dataset, visualize=True)
 
       print(result)
       pickle.dump([advs, result], open(outfile, 'wb'))

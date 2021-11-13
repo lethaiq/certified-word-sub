@@ -43,6 +43,7 @@ class AdversarialModel(nn.Module):
     dataset = TextClassificationDataset.from_raw_data(
         [(x, 0)], vocab, attack_surface=attack_surface)
     data = dataset.get_loader(1)
+    
     with torch.no_grad():
       batch = data_util.dict_batch_to_device(next(iter(data)), device)
       logits = self.forward(batch, compute_bounds=return_bounds)
