@@ -58,6 +58,7 @@ class LMConstrainedAttackSurface(AttackSurface):
     swaps = []
     words = [word.lower() for word in words]
     if not s:
+      print("NOT FOUND s")
       s = ' '.join(words)
     if s not in self.lm_scores:
       raise KeyError('Unrecognized sentence "%s"' % s)
