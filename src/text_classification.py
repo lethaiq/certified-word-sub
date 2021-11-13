@@ -30,7 +30,7 @@ class AdversarialModel(nn.Module):
   def __init__(self):
     super(AdversarialModel, self).__init__()
 
-  def query(self, x, vocab, device, return_bounds=False, attack_surface=None):
+  def query(self, x, vocab, device, return_bounds=False, attack_surface=None, return_raw = True):
     """Query the model on a Dataset.
 
     Args:
@@ -48,7 +48,9 @@ class AdversarialModel(nn.Module):
       logits = self.forward(batch, compute_bounds=return_bounds)
       if return_bounds:
         return logits.val[0].item(), (logits.lb[0].item(), logits.ub[0].item())
-      else:
+      elif return_raw:
+        return logits
+      else
         return logits[0].item()
 
 
