@@ -588,6 +588,7 @@ def load_datasets(device, opts, word_mat_only=False):
           pickle.dump(attack_surface, outfile)
     return train_data, dev_data, word_mat, attack_surface
   else:
+      raw_data = data_class.get_raw_data(opts.imdb_dir, test=opts.test)
       attack_surface = attacks.WordSubstitutionAttackSurface.from_file(opts.neighbor_file)
       word_set = raw_data.get_word_set(attack_surface)
       vocab, word_mat = vocabulary.Vocabulary.read_word_vecs(word_set, opts.glove_dir, opts.glove, device)
