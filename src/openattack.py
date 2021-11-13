@@ -380,7 +380,7 @@ def openattack():
 
   def dataset_mapping(x):
       return {
-          "x": x["sentence"],
+          "x": x["text"],
           "y": 1 if x["label"] > 0.5 else 0,
       }
       
