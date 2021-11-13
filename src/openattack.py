@@ -351,8 +351,9 @@ def openattack():
     attack_surface, vocab, word_mat = pickle.load(open('./data/imdb_evaluation_elements.pkl','rb'))
 
   model = task_class.load_model(word_mat, device, OPTS)
+  pred = model.query(x, vocab, device, return_bounds=False, attack_surface=attack_surface)
 
-  print(model)
+  print(pred)
 
 if __name__ == '__main__':
   OPTS = parse_args()
