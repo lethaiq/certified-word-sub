@@ -342,8 +342,9 @@ def openattack():
         os.makedirs(OPTS.data_cache_dir)
   train_data, dev_data, word_mat, attack_surface = task_class.load_datasets(device, OPTS)
   print('Initializing model.')
-  model = task_class.load_model(word_mat, device, OPTS)
-  
+  pickle.dump(word_mat, open('./data/imdb_word_mat.pkl','wb'))
+  # model = task_class.load_model(word_mat, device, OPTS)
+
 
 def main():
   random.seed(OPTS.rng_seed)
