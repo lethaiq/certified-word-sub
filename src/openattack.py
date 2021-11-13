@@ -390,12 +390,14 @@ def openattack():
   dataset = dataset.shuffle(seed=12)
   dataset = dataset.map(function=dataset_mapping)
   dataset = dataset.filter(lambda x: x['y'] == 1)
-  dataset = dataset.select(list(range(200)))
+  dataset = dataset.select(list(range(10)))
   print('preprocessing')
   victim = MyClassifier()
   attacker = oa.attackers.TextBuggerAttacker()
   attack_eval = oa.AttackEval(attacker, victim)
-  attack_eval.eval(dataset, visualize=True)
+  advs, result = attack_eval.eval(dataset, visualize=True)
+
+  print(advs, result)
 
 if __name__ == '__main__':
   OPTS = parse_args()
