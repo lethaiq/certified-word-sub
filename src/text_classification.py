@@ -592,10 +592,16 @@ def load_datasets(device, opts, word_mat_only=False):
   else:
       data_class = ToyClassificationDataset if opts.use_toy_data else IMDBDataset
       raw_data = data_class.get_raw_data(opts.imdb_dir, test=opts.test)
-      attack_surface = attacks.WordSubstitutionAttackSurface.from_file(opts.neighbor_file)
-      word_set = raw_data.get_word_set(attack_surface)
-      vocab, word_mat = vocabulary.Vocabulary.read_word_vecs(word_set, opts.glove_dir, opts.glove, device)
-      return attack_surface, vocab, word_mat
+      attack_surface1 = attacks.WordSubstitutionAttackSurface.from_file(opts.neighbor_file)
+      attack_surface2 = attacks.LMConstrainedAttackSurface.from_files(opts.neighbor_file, opts.imdb_lm_file)
+
+      word_set1 = raw_data.get_word_set(attack_surface1)
+      vocab1, word_mat1 = vocabulary.Vocabulary.read_word_vecs(word_set1, opts.glove_dir, opts.glove, device)
+      
+      word_set2 = raw_data.get_word_set(attack_surface2)
+      vocab2, word_mat2 = vocabulary.Vocabulary.read_word_vecs(word_set2, opts.glove_dir, opts.glove, device)
+      
+      return (attack_surface1, vocab1, word_mat1, attack_surface2, vocab2, word_mat2)
 
 def num_correct(model_output, gold_labels):
   """

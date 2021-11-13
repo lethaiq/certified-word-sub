@@ -351,72 +351,74 @@ def openattack():
         os.makedirs(OPTS.data_cache_dir)
 
   if not os.path.exists('./data/imdb_evaluation_elements.pkl'):
-    attack_surface, vocab, word_mat = task_class.load_datasets(device, OPTS, word_mat_only=True)
-    pickle.dump([attack_surface, vocab, word_mat], open('./data/imdb_evaluation_elements.pkl','wb'))
+    attack_surface1, vocab1, word_mat1, attack_surface2, vocab2, word_mat2 = task_class.load_datasets(device, OPTS, word_mat_only=True)
+    pickle.dump([attack_surface1, vocab1, word_mat1, attack_surface2, vocab2, word_mat2], open('./data/imdb_evaluation_elements.pkl','wb'))
   else:
-    attack_surface, vocab, word_mat = pickle.load(open('./data/imdb_evaluation_elements.pkl','rb'))
+    attack_surface1, vocab1, word_mat1, attack_surface2, vocab2, word_mat2 = pickle.load(open('./data/imdb_evaluation_elements.pkl','rb'))
 
-  model = task_class.load_model(word_mat, device, OPTS)
-  model.eval()
+  for params, model_name in zip(([attack_surface1, vocab1, word_mat1], [attack_surface2, vocab2, word_mat2]), ['CertifiedTraining1', 'CertifiedTraining2']):
+    attack_surface = params[0]
+    vocab = params[1]
+    word_mat = params[2]
+    print("!!!!!!!!!!!!!!!!!!!!!!!", model_name, "!!!!!!!!!!!!!!!!!!!!!")
 
-  x = "this movie is awesome, great"
-  pred = model.query(x, vocab, device, return_bounds=False, attack_surface=attack_surface)
+    model = task_class.load_model(word_mat, device, OPTS)
+    model.eval()
 
+    x = "this movie is awesome, great"
+    pred = model.query(x, vocab, device, return_bounds=False, attack_surface=attack_surface)
 
-  # configure access interface of the customized victim model by extending OpenAttack.Classifier.
-  class MyClassifier(oa.Classifier):
-      def __init__(self):
-          self.model = model
-      
-      def get_pred(self, input_):
-          return self.get_prob(input_).argmax(axis=1)
+    # configure access interface of the customized victim model by extending OpenAttack.Classifier.
+    class MyClassifier(oa.Classifier):
+        def __init__(self):
+            self.model = model
+        
+        def get_pred(self, input_):
+            return self.get_prob(input_).argmax(axis=1)
 
-      def get_prob(self, input_):
-          ret = []
-          for sent in input_:
-              prob = self.model.query(sent, vocab, device, return_bounds=False, attack_surface=attack_surface)
-              prob = torch.sigmoid(torch.tensor(prob))
-              ret.append(np.array([1 - prob, prob]))
-          return np.array(ret)
+        def get_prob(self, input_):
+            ret = []
+            for sent in input_:
+                prob = self.model.query(sent, vocab, device, return_bounds=False, attack_surface=attack_surface)
+                prob = torch.sigmoid(torch.tensor(prob))
+                ret.append(np.array([1 - prob, prob]))
+            return np.array(ret)
 
-  def dataset_mapping(x):
-      return {
-          "x": x["text"],
-          "y": 1 if x["label"] > 0.5 else 0,
-      }
-      
-  # load some examples of SST-2 for evaluation
-  dataset = datasets.load_dataset("imdb", split="test")
-  dataset = dataset.shuffle(seed=200)
-  dataset = dataset.map(function=dataset_mapping)
-  dataset = dataset.filter(lambda x: x['y'] == 1)
-  dataset = dataset.select(list(range(10)))
-  print('preprocessing')
-  victim = MyClassifier()
+    def dataset_mapping(x):
+        return {
+            "x": x["text"],
+            "y": 1 if x["label"] > 0.5 else 0,
+        }
+        
+    # load some examples of SST-2 for evaluation
+    dataset = datasets.load_dataset("imdb", split="test")
+    dataset = dataset.shuffle(seed=200)
+    dataset = dataset.map(function=dataset_mapping)
+    dataset = dataset.filter(lambda x: x['y'] == 1)
+    dataset = dataset.select(list(range(10)))
+    print('preprocessing')
+    victim = MyClassifier()
 
+    attackers = [oa.attackers.TextBuggerAttacker(), \
+                oa.attackers.PWWSAttacker(), \
+                oa.attackers.GeneticAttacker(), \
+                oa.attackers.TextFoolerAttacker(), \
+                oa.attackers.SCPNAttacker(),
+                oa.attackers.BERTAttacker(),
+                oa.attackers.BAEAttacker()]
 
-  model_name = 'CertifiedTraining'
+    for attacker in attackers:
+      print(attacker)
+      outfile = './results/{}_{}.pkl'.format(model_name, str(attacker))
 
-  attackers = [oa.attackers.TextBuggerAttacker(), \
-              oa.attackers.PWWSAttacker(), \
-              oa.attackers.GeneticAttacker(), \
-              oa.attackers.TextFoolerAttacker(), \
-              oa.attackers.SCPNAttacker(),
-              oa.attackers.BERTAttacker(),
-              oa.attackers.BAEAttacker()]
+      if os.path.exists(outfile):
+        return 
 
-  for attacker in attackers:
-    print(attacker)
-    outfile = './results/{}_{}.pkl'.format(model_name, str(attacker))
+      attack_eval = oa.AttackEval(attacker, victim)
+      advs, result = attack_eval.eval(dataset, visualize=False)
 
-    if os.path.exists(outfile):
-      return 
-
-    attack_eval = oa.AttackEval(attacker, victim)
-    advs, result = attack_eval.eval(dataset, visualize=True)
-
-    pickle.dump([advs, result], open(outfile, 'wb'))
-    print("saved", outfile)
+      pickle.dump([advs, result], open(outfile, 'wb'))
+      print("saved", outfile)
 
 if __name__ == '__main__':
   OPTS = parse_args()
