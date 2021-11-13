@@ -396,12 +396,14 @@ def openattack():
       raw_data = pickle.load(open('./data/imdb_test.pkl','rb'))
       dataset = []
       print("processing data for training 2")
-      for t in raw_data[:1000]:
-        tmp = {
-          'x': t[0],
-          'y': t[1]
-        }
-        dataset.append(tmp)
+      for t in raw_data:
+        if t[0] in attack_surface2.lm_scores.keys():
+          tmp = {
+            'x': t[0],
+            'y': t[1]
+          }
+          dataset.append(tmp)
+      print("loaded {} test data".format(len(dataset)))
     else:    
       # load some examples of SST-2 for evaluation
       dataset = datasets.load_dataset("imdb", split="test")
