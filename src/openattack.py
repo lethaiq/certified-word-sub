@@ -387,7 +387,7 @@ def openattack():
       
   # load some examples of SST-2 for evaluation
   dataset = datasets.load_dataset("imdb", split="test")
-  dataset = dataset.shuffle(seed=12)
+  dataset = dataset.shuffle(seed=200)
   dataset = dataset.map(function=dataset_mapping)
   dataset = dataset.filter(lambda x: x['y'] == 1)
   dataset = dataset.select(list(range(10)))
