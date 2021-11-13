@@ -403,6 +403,7 @@ def openattack():
             'y': t[1]
           }
           dataset.append(tmp)
+      dataset = dataset[:1]
       print("loaded {} test data".format(len(dataset)))
     else:    
       # load some examples of SST-2 for evaluation
