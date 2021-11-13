@@ -54,10 +54,11 @@ class LMConstrainedAttackSurface(AttackSurface):
           lm_scores[cur_sent][word_idx][word] = score
     return cls(neighbors, lm_scores)
     
-  def get_swaps(self, words):
+  def get_swaps(self, words, s=None):
     swaps = []
     words = [word.lower() for word in words]
-    s = ' '.join(words)
+    if not s:
+      s = ' '.join(words)
     if s not in self.lm_scores:
       raise KeyError('Unrecognized sentence "%s"' % s)
     for i in range(len(words)):
