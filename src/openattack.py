@@ -397,7 +397,7 @@ def openattack():
       dataset = []
       print("processing data for training 2")
       for t in raw_data:
-        if t[0] in attack_surface2.lm_scores.keys():
+        if t[0].lower() in attack_surface2.lm_scores.keys():
           tmp = {
             'x': t[0],
             'y': t[1]
