@@ -395,6 +395,7 @@ def openattack():
     if model_name == 'CertifiedTraining2':
       raw_data = pickle.load('./data/imdb_test.pkl','rb')
       dataset = []
+      print("processing data for training 2")
       for t in raw_data[:1000]:
         tmp = {
           'x': t[0],
