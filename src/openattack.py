@@ -15,6 +15,12 @@ import entailment
 import text_classification
 import vocabulary
 
+import OpenAttack as oa
+import numpy as np
+import datasets
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
 
 # Maps string keys to modules that hold the relevant functions for training against
 # their tasks
@@ -355,11 +361,6 @@ def openattack():
   x = "this movie is awesome, great"
   pred = model.query(x, vocab, device, return_bounds=False, attack_surface=attack_surface)
 
-  import OpenAttack as oa
-  import numpy as np
-  import datasets
-  import nltk
-  from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
   # configure access interface of the customized victim model by extending OpenAttack.Classifier.
   class MyClassifier(oa.Classifier):
