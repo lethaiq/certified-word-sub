@@ -389,7 +389,7 @@ def openattack():
   dataset = dataset.shuffle(seed=12)
   dataset = dataset.map(function=dataset_mapping)
   dataset = dataset.filter(lambda x: x['y'] == 1)
-  dataset = dataset[:200]
+  dataset = dataset.select(list(range(200)))
   print('preprocessing')
   victim = MyClassifier()
   attacker = oa.attackers.TextBuggerAttacker()
