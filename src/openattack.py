@@ -352,7 +352,7 @@ def openattack():
 
   model = task_class.load_model(word_mat, device, OPTS)
 
-  x = "this comment is not good"
+  x = "this movie is awesome, great"
   pred = model.query(x, vocab, device, return_bounds=False, attack_surface=attack_surface)
 
   print(pred)
