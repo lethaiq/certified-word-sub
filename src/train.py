@@ -324,6 +324,26 @@ def parse_args():
     sys.exit(1)
   return parser.parse_args()
 
+def openattack():
+  random.seed(OPTS.rng_seed)
+  np.random.seed(OPTS.rng_seed)
+  torch.manual_seed(OPTS.torch_seed)
+  torch.backends.cudnn.deterministic = True
+  device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+  task_class = TASK_CLASSES[OPTS.task]
+  print('Loading dataset.')
+  if not os.path.exists(OPTS.out_dir):
+    os.makedirs(OPTS.out_dir)
+  with open(os.path.join(OPTS.out_dir, 'log.txt'), 'w') as f:
+    print(sys.argv, file=f)
+    print(OPTS, file=f)
+  if OPTS.data_cache_dir:
+    if not os.path.exists(OPTS.data_cache_dir):
+        os.makedirs(OPTS.data_cache_dir)
+  train_data, dev_data, word_mat, attack_surface = task_class.load_datasets(device, OPTS)
+  print('Initializing model.')
+  model = task_class.load_model(word_mat, device, OPTS)
+  
 
 def main():
   random.seed(OPTS.rng_seed)
