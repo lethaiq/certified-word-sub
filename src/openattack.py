@@ -411,6 +411,7 @@ def openattack():
       dataset = dataset.shuffle(seed=200)
       dataset = dataset.map(function=dataset_mapping)
       dataset = dataset.filter(lambda x: x['y'] == 1)
+      dataset = dataset.select(list(range(200)))
 
     print('preprocessing')
     victim = MyClassifier()
