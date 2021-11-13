@@ -399,7 +399,7 @@ def openattack():
       for t in raw_data:
         if t[0].lower() in attack_surface2.lm_scores.keys():
           tmp = {
-            'x': t[0],
+            'x': t[0].lower(),
             'y': t[1]
           }
           dataset.append(tmp)
