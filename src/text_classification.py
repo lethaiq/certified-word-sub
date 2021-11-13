@@ -30,7 +30,7 @@ class AdversarialModel(nn.Module):
   def __init__(self):
     super(AdversarialModel, self).__init__()
 
-  def query(self, x, vocab, device, return_bounds=False, attack_surface=None, return_raw = True):
+  def query(self, x, vocab, device, return_bounds=False, attack_surface=None, return_raw = False):
     """Query the model on a Dataset.
 
     Args:

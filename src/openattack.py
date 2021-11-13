@@ -354,7 +354,7 @@ def openattack():
 
   x = "this movie is awesome, great"
   pred = model.query(x, vocab, device, return_bounds=False, attack_surface=attack_surface)
-
+  
   print(pred)
 
 if __name__ == '__main__':
