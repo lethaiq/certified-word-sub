@@ -398,8 +398,9 @@ def openattack(attacker):
 
   model_name = 'CertifiedTraining'
 
-  attackers = ['TextBugger', 'PWWS', 'Genetic', 'TextFooler', 'SCPN']:
+  attackers = ['TextBugger', 'PWWS', 'Genetic', 'TextFooler', 'SCPN']
   for attacker in attackers:
+    print(attacker)
     outfile = './results/{}_{}.pkl'.format(model_name, attacker)
 
     if os.path.exists(outfile):
