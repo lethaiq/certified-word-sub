@@ -330,8 +330,7 @@ def parse_args():
     sys.exit(1)
   return parser.parse_args()
 
-def openattack(attacker):
-  
+def openattack():
   import pickle
   import os
 
