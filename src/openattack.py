@@ -330,7 +330,8 @@ def parse_args():
     sys.exit(1)
   return parser.parse_args()
 
-def openattack():
+def openattack(attacker):
+  
   import pickle
   import os
 
@@ -393,11 +394,36 @@ def openattack():
   dataset = dataset.select(list(range(10)))
   print('preprocessing')
   victim = MyClassifier()
-  attacker = oa.attackers.TextBuggerAttacker()
-  attack_eval = oa.AttackEval(attacker, victim)
-  advs, result = attack_eval.eval(dataset, visualize=True)
 
-  print(advs, result)
+
+  model_name = 'CertifiedTraining'
+
+  attackers = ['TextBugger', 'PWWS', 'Genetic', 'TextFooler', 'SCPN']:
+  for attacker in attackers:
+    outfile = './results/{}_{}.pkl'.format(model_name, attacker)
+
+    if os.path.exists(outfile):
+      return 
+
+    if attacker == 'TextBugger':
+      attacker = oa.attackers.TextBuggerAttacker()
+    elif attacker == 'PWWS':
+      attacker = oa.attackers.PWWSAttacker()
+    elif attacker == 'Genetic':
+      attacker = oa.attackers.GeneticAttacker()
+    elif attacker == 'TextFooler':
+      attacker = oa.attackers.TextFoolerAttacker()
+    elif attacker == 'SCPN':
+      attacker = oa.attackers.SCPNAttacker()
+
+    print(attacker)
+
+    attack_eval = oa.AttackEval(attacker, victim)
+    advs, result = attack_eval.eval(dataset, visualize=True)
+
+    print(advs, result)
+
+    pickle.dump([advs, result], open(outfile, 'wb'))
 
 if __name__ == '__main__':
   OPTS = parse_args()
