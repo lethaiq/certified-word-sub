@@ -21,6 +21,8 @@ import datasets
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
+raw_data = text_classification.IMDBDataset.get_raw_data(
+        OPTS.imdb_dir, test=(OPTS.split == 'test'))
 
 # Maps string keys to modules that hold the relevant functions for training against
 # their tasks
@@ -389,13 +391,24 @@ def openattack():
             "x": x["text"],
             "y": 1 if x["label"] > 0.5 else 0,
         }
-        
-    # load some examples of SST-2 for evaluation
-    dataset = datasets.load_dataset("imdb", split="test")
-    dataset = dataset.shuffle(seed=200)
-    dataset = dataset.map(function=dataset_mapping)
-    dataset = dataset.filter(lambda x: x['y'] == 1)
-    dataset = dataset.select(list(range(10)))
+    
+    if model_name == 'CertifiedTraining2':
+      raw_data = pickle.load('./data/imdb_test.pkl','rb')
+      dataset = []
+      for t in raw_data:
+        tmp = {
+          'x': t[0],
+          'y': t[1]
+        }
+        dataset.append(tmp)
+    else:    
+      # load some examples of SST-2 for evaluation
+      dataset = datasets.load_dataset("imdb", split="test")
+      dataset = dataset.shuffle(seed=200)
+      dataset = dataset.map(function=dataset_mapping)
+      dataset = dataset.filter(lambda x: x['y'] == 1)
+      dataset = dataset.select(list(range(10)))
+
     print('preprocessing')
     victim = MyClassifier()
 

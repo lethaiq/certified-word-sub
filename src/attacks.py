@@ -53,7 +53,7 @@ class LMConstrainedAttackSurface(AttackSurface):
           word_idx, word, score = int(toks[1]), toks[2], float(toks[3])
           lm_scores[cur_sent][word_idx][word] = score
     return cls(neighbors, lm_scores)
-
+    
   def get_swaps(self, words):
     swaps = []
     words = [word.lower() for word in words]
