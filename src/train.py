@@ -182,6 +182,7 @@ def train(task_class, model, train_data, num_epochs, lr, device, dev_data=None,
         or (not save_best_only and epochs_per_save and (t+1) % epochs_per_save == 0)
         or t == num_epochs - 1):
       if save_best_only and is_best:
+        print("Updating new best model....")
         for fn in glob.glob(os.path.join(OPTS.out_dir, 'model-checkpoint*.pth')):
           os.remove(fn)
       model_save_path = os.path.join(OPTS.out_dir, "model-checkpoint-{}.pth".format(t))
@@ -347,6 +348,7 @@ def main():
     augmenter = None
     if OPTS.augment_by:
       augmenter = task_class.DataAugmenter(OPTS.augment_by)
+
     train(task_class, model, train_data, OPTS.num_epochs, OPTS.learning_rate, device,
           dev_data=dev_data, cert_frac=OPTS.cert_frac, initial_cert_frac=OPTS.initial_cert_frac,
           cert_eps=OPTS.cert_eps, initial_cert_eps=OPTS.initial_cert_eps, batch_size=OPTS.batch_size,
